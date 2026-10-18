@@ -266,3 +266,30 @@ adb reverse tcp:5000 tcp:5000
 adb reverse tcp:8081 tcp:8081
 ```
 The mobile application will connect directly via `ws://localhost:5000`.
+
+---
+
+## 🤖 Running Directly on Android via Termux
+
+You can run the entire server directly on your Android smartphone inside Termux:
+
+### 1. Install & Setup Termux
+Inside the Termux terminal app:
+```bash
+# Clone the repository
+git clone https://github.com/GaganTiwariCod/Voice_translation.git
+cd Voice_translation
+
+# Run the automated installer
+bash setup_termux.sh
+```
+
+### 2. Start the Server on Device
+```bash
+./start_termux.sh
+# Server starts on http://0.0.0.0:5000 and ws://0.0.0.0:5000
+# Spawns python3 STT engine on ws://127.0.0.1:2700
+```
+
+> [!TIP]
+> When running the server in Termux on the phone itself, the mobile app connects directly to `ws://127.0.0.1:5000` with **no PC or ADB reverse needed**!

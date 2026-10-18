@@ -5,7 +5,14 @@ import math
 import os
 import struct
 import sys
-import vosk
+
+try:
+    import vosk
+    HAS_VOSK = True
+except ImportError:
+    vosk = None
+    HAS_VOSK = False
+
 import websockets
 import speech_recognition as sr
 
@@ -19,6 +26,10 @@ MODELS = {}
 sr_recognizer = sr.Recognizer()
 
 def load_models():
+    if not HAS_VOSK:
+        logger.info("Vosk offline library not available (Termux/Mobile mode). Speech recognition will use high-accuracy online engine for all languages.")
+        return
+
     logger.info("Initializing Vosk models...")
     try:
         MODELS['en'] = vosk.Model(lang="en-us")
@@ -125,13 +136,15 @@ async def handle_client(websocket):
                 if "config" in data:
                     cfg = data["config"]
                     sample_rate = int(cfg.get("sample_rate", 16000))
-                    lang = (cfg.get("language") or "en").split("-")[0].lower()
-                    use_online = lang in ONLINE_LANGUAGES or (lang not in MODELS)
+                    use_online = (not HAS_VOSK) or (lang in ONLINE_LANGUAGES) or (lang not in MODELS)
 
-                    if not use_online:
+                    if not use_online and HAS_VOSK and vosk is not None:
                         model = get_model(lang)
-                        recognizer = vosk.KaldiRecognizer(model, sample_rate)
-                        recognizer.SetWords(True)
+                        if model:
+                            recognizer = vosk.KaldiRecognizer(model, sample_rate)
+                            recognizer.SetWords(True)
+                        else:
+                            use_online = True
 
                     audio_buffer.clear()
                     pre_speech_buffer.clear()
@@ -184,9 +197,13 @@ async def handle_client(websocket):
                         pre_speech_buffer = bytearray(message)
                 else:
                     if recognizer is None:
-                        model = MODELS.get('en')
-                        recognizer = vosk.KaldiRecognizer(model, sample_rate)
-                        recognizer.SetWords(True)
+                        if HAS_VOSK and vosk is not None and ('en' in MODELS):
+                            model = MODELS.get('en')
+                            recognizer = vosk.KaldiRecognizer(model, sample_rate)
+                            recognizer.SetWords(True)
+                        else:
+                            use_online = True
+                            continue
 
                     rms = get_rms(message)
                     if rms >= 60:

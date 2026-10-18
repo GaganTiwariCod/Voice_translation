@@ -1,0 +1,8 @@
+# Core Python STT Sidecar Dependencies
+websockets>=12.0
+SpeechRecognition>=3.10.0
+requests>=2.31.0
+
+# Optional: Offline Kaldi speech recognition engine for Windows/Linux PC
+# Note: On Android Termux, omit vosk as speech_recognition handles all languages online.
+# vosk>=0.3.45

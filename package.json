@@ -7,6 +7,8 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "stt:sidecar": "py -3.12 src/services/vosk_server.py",
+    "setup:termux": "bash setup_termux.sh",
+    "start:termux": "bash start_termux.sh",
     "test": "jest --runInBand --detectOpenHandles"
   },
   "keywords": [],
