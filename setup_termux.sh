@@ -15,8 +15,8 @@ pkg install nodejs-lts python git -y
 
 # 3. Install Python dependencies
 echo "[3/4] Installing Python STT libraries..."
-pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements.txt --break-system-packages 2>/dev/null || pip install -r requirements.txt
+
 
 # 4. Install Node.js dependencies
 echo "[4/4] Installing Node.js server dependencies..."
